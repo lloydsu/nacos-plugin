@@ -24,10 +24,10 @@ CREATE TABLE "config_info" (
   "group_id" varchar(255) ,
   "content" text  NOT NULL,
   "md5" varchar(32) ,
-  "gmt_create" timestamp(6) NOT NULL,
-  "gmt_modified" timestamp(6) NOT NULL,
+  "gmt_create" timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "gmt_modified" timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "src_user" text ,
-  "src_ip" varchar(20) ,
+  "src_ip" varchar(50) ,
   "app_name" varchar(128) ,
   "tenant_id" varchar(128) ,
   "c_desc" varchar(256) ,
@@ -35,7 +35,7 @@ CREATE TABLE "config_info" (
   "effect" varchar(64) ,
   "type" varchar(64) ,
   "c_schema" text ,
-  "encrypted_data_key" text  NOT NULL
+  "encrypted_data_key" varchar(1024)  NOT NULL
 )
 ;
 
@@ -94,10 +94,10 @@ CREATE TABLE "config_info_beta" (
   "content" text  NOT NULL,
   "beta_ips" varchar(1024) ,
   "md5" varchar(32) ,
-  "gmt_create" timestamp(6) NOT NULL,
-  "gmt_modified" timestamp(6) NOT NULL,
+  "gmt_create" timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "gmt_modified" timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "src_user" text ,
-  "src_ip" varchar(20) ,
+  "src_ip" varchar(50) ,
   "tenant_id" varchar(128) ,
   "encrypted_data_key" text  NOT NULL
 )
@@ -136,10 +136,10 @@ CREATE TABLE "config_info_tag" (
   "app_name" varchar(128) ,
   "content" text  NOT NULL,
   "md5" varchar(32) ,
-  "gmt_create" timestamp(6) NOT NULL,
-  "gmt_modified" timestamp(6) NOT NULL,
+  "gmt_create" timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "gmt_modified" timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "src_user" text ,
-  "src_ip" varchar(20) 
+  "src_ip" varchar(50)
 )
 ;
 COMMENT ON COLUMN "config_info_tag"."id" IS 'id';
@@ -203,8 +203,8 @@ CREATE TABLE "group_capacity" (
   "max_aggr_count" int4 NOT NULL,
   "max_aggr_size" int4 NOT NULL,
   "max_history_count" int4 NOT NULL,
-  "gmt_create" timestamp(6) NOT NULL,
-  "gmt_modified" timestamp(6) NOT NULL
+  "gmt_create" timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "gmt_modified" timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP
 )
 ;
 COMMENT ON COLUMN "group_capacity"."id" IS '主键ID';
@@ -230,20 +230,20 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS "his_config_info";
 CREATE TABLE "his_config_info" (
-  "id" int8 NOT NULL,
+  "id" bigserial NOT NULL,
   "nid" bigserial NOT NULL,
   "data_id" varchar(255)  NOT NULL,
   "group_id" varchar(128)  NOT NULL,
   "app_name" varchar(128) ,
   "content" text  NOT NULL,
   "md5" varchar(32) ,
-  "gmt_create" timestamp(6) NOT NULL  DEFAULT '2010-05-05 00:00:00',
-  "gmt_modified" timestamp(6) NOT NULL,
+  "gmt_create" timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "gmt_modified" timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "src_user" text ,
-  "src_ip" varchar(20) ,
+  "src_ip" varchar(50) ,
   "op_type" char(10) ,
   "tenant_id" varchar(128) ,
-  "encrypted_data_key" text  NOT NULL
+  "encrypted_data_key" varchar(1024)  NOT NULL
 )
 ;
 COMMENT ON COLUMN "his_config_info"."app_name" IS 'app_name';
@@ -280,13 +280,6 @@ CREATE TABLE "roles" (
 ;
 
 -- ----------------------------
--- Records of roles
--- ----------------------------
-BEGIN;
-INSERT INTO "roles" VALUES ('nacos', 'ROLE_ADMIN');
-COMMIT;
-
--- ----------------------------
 -- Table structure for tenant_capacity
 -- ----------------------------
 DROP TABLE IF EXISTS "tenant_capacity";
@@ -299,8 +292,8 @@ CREATE TABLE "tenant_capacity" (
   "max_aggr_count" int4 NOT NULL,
   "max_aggr_size" int4 NOT NULL,
   "max_history_count" int4 NOT NULL,
-  "gmt_create" timestamp(6) NOT NULL,
-  "gmt_modified" timestamp(6) NOT NULL
+  "gmt_create" timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "gmt_modified" timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP
 )
 ;
 COMMENT ON COLUMN "tenant_capacity"."id" IS '主键ID';
@@ -362,13 +355,6 @@ CREATE TABLE "users" (
   "enabled" boolean NOT NULL
 )
 ;
-
--- ----------------------------
--- Records of users
--- ----------------------------
-BEGIN;
-INSERT INTO "users" VALUES ('nacos', '$2a$10$EuWPZHzz32dJN7jexM34MOeYirDdFAZm2kuWj7VEOJhhZkDrxfvUu', TRUE);
-COMMIT;
 
 -- ----------------------------
 -- Indexes structure for table config_info

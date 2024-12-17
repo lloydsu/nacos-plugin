@@ -16,6 +16,7 @@
 
 package com.alibaba.nacos.plugin.datasource.impl.base;
 
+import com.alibaba.nacos.common.utils.ArrayUtils;
 import com.alibaba.nacos.common.utils.CollectionUtils;
 import com.alibaba.nacos.common.utils.StringUtils;
 import com.alibaba.nacos.plugin.datasource.constants.FieldConstant;
@@ -25,6 +26,7 @@ import com.alibaba.nacos.plugin.datasource.impl.mysql.ConfigInfoMapperByMySql;
 import com.alibaba.nacos.plugin.datasource.manager.DatabaseDialectManager;
 import com.alibaba.nacos.plugin.datasource.model.MapperContext;
 import com.alibaba.nacos.plugin.datasource.model.MapperResult;
+import com.alibaba.nacos.plugin.datasource.constants.ContextConstant;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -105,9 +107,12 @@ public class BaseConfigInfoMapper extends ConfigInfoMapperByMySql {
     public MapperResult findAllConfigInfoFragment(MapperContext context) {
         int startRow = context.getStartRow();
         int pageSize = context.getPageSize();
+        String contextParameter = context.getContextParameter(ContextConstant.NEED_CONTENT);
+        boolean needContent = contextParameter != null && Boolean.parseBoolean(contextParameter);
         String sql = getLimitPageSqlWithOffset(
-                "SELECT id,data_id,group_id,tenant_id,app_name,content,md5,gmt_modified,type,encrypted_data_key "
-                        + "FROM config_info WHERE id > ? ORDER BY id ASC ", startRow, pageSize);
+                "SELECT id,data_id,group_id,tenant_id,app_name," + (needContent ? "content," : "")
+                + "md5,gmt_modified,type,encrypted_data_key FROM config_info WHERE id > ? ORDER BY id ASC",
+                startRow, pageSize);
         return new MapperResult(sql, CollectionUtils.list(context.getWhereParameter(FieldConstant.ID)));
     }
     
@@ -151,7 +156,9 @@ public class BaseConfigInfoMapper extends ConfigInfoMapperByMySql {
             paramList.add(endTime);
         }
         String originSql = sqlFetchRows + where + " AND id > " + lastMaxId + " ORDER BY id ASC";
-        String sql = getLimitPageSqlWithOffset(originSql, 0, pageSize);
+        String sql = getLimitPageSqlWithOffset(
+                originSql + where + " AND id > " + context.getWhereParameter(FieldConstant.LAST_MAX_ID)  + " ORDER BY id ASC"
+                , 0, pageSize);
         return new MapperResult(sql, paramList);
     }
     
@@ -243,6 +250,7 @@ public class BaseConfigInfoMapper extends ConfigInfoMapperByMySql {
         final String group = (String) context.getWhereParameter(FieldConstant.GROUP_ID);
         final String appName = (String) context.getWhereParameter(FieldConstant.APP_NAME);
         final String content = (String) context.getWhereParameter(FieldConstant.CONTENT);
+        final String[] types = (String[]) context.getWhereParameter(FieldConstant.TYPE);
         final String sqlFetchRows = "SELECT id,data_id,group_id,tenant_id,app_name,content,encrypted_data_key FROM config_info";
         StringBuilder where = new StringBuilder(" WHERE ");
         where.append(" tenant_id LIKE ? ");
@@ -263,6 +271,17 @@ public class BaseConfigInfoMapper extends ConfigInfoMapperByMySql {
         if (!StringUtils.isBlank(content)) {
             where.append(" AND content LIKE ? ");
             paramList.add(content);
+        }
+        if (!ArrayUtils.isEmpty(types)) {
+            where.append(" AND type IN ( ");
+            for (int i = 0; i < types.length; i++) {
+                if (i != 0) {
+                    where.append(", ");
+                }
+                where.append('?');
+                paramList.add(types[i]);
+            }
+            where.append(") ");
         }
         int startRow = context.getStartRow();
         int pageSize = context.getPageSize();

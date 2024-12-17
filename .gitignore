@@ -1,19 +1,36 @@
-# Except this file !.gitignore 
+### IntelliJ IDEA ###
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+target/
+
+### Eclipse ###
+.apt_generated
 .classpath
+.factorypath
 .project
 .settings
-target
-.idea
-.vscode
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/
+
+### Mac OS ###
 .DS_Store
-.factorypath
-/logs
-*.iml
-node_modules
-test/derby.log
-derby.log
-work
-test/logs
-derby.log
-yarn.lock
+
 .flattened-pom.xml
+
+*.swp
+.idea/
+nacos-plugin.iml
